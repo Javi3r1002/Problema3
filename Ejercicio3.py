@@ -1,7 +1,15 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.signal import argrelextrema
-from random import randrange
+import sklearn.cluster as cluster
+import pyclustertend
+import random
+from sklearn.cluster import KMeans, MeanShift, estimate_bandwidth
+from sklearn.preprocessing import StandardScaler, PowerTransformer
+from kneed import KneeLocator
+import pandas as pd
+from sklearn.cluster import KMeans
+
 
 fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(6, 6), sharex=True)
 
@@ -18,6 +26,8 @@ G =[]
 Temp = []
 FgF =[]
 Fg=[]
+Co = []
+Gg = []
 
 def F(a, x):
 	if a > 0:
@@ -28,6 +38,9 @@ def F(a, x):
 def union(Vg, Va):
 	return list((zip(Vg, Va)))
 
+def D(A, G):
+	return pd.DataFrame(list((zip(A, G))), columns = ['alpha', 'Exponente'])
+
 def Fei(Vg, Va):
 	U = union(Vg, Va)
 	#print(U)
@@ -36,29 +49,27 @@ def Fei(Vg, Va):
 		#if round(U[i][0], 2) == 0:
 			#Fg.append(U[i][1])
 		if i > 0:
-			if (U[i-1][0] < 0) & (U[i+1][0] > 0):
-				Fg.append(U[i][1])
-	Fg.pop(0)
-	#print(Fg)
-	T = []
-	for i in range(len(Fg)):
-		print(T)
-		if i > 0:
-			if round(Fg[i]-T[-1], 1) == 0:
-				T.append(Fg[i])
+			if (U[i][1] <= 3.5):
+				if (U[i][0] >= -.01) & (U[i][0] <= .01):
+					Fg.append(U[i][1])
+					Gg.append(U[i][0])
 			else:
-				FgF.append(np.mean(T))
-				T.clear()
-				print('Aqui')
-				T.append(Fg[i])
-		else:
-			T.append(Fg[i])
+				if (U[i][0] >= -.08) & (U[i][0] <= .08):
+					Fg.append(U[i][1])
+					Gg.append(U[i][0])
+	Fg.pop(0)
 
-	
-	for j in range(len(FgF)-2):
-		print('Constante: ', ((FgF[j+1]-FgF[j])/(FgF[j+2]-FgF[j+1])))
+	X = D(Fg, Gg)
+	km = cluster.KMeans(n_clusters=10).fit(X)
+	centroides = km.cluster_centers_
+	#print(centroides)
+	C = sorted(centroides[:, 0])
+	print(C)
+	for i in C:
+		Co.append(i)
 
-
+	for j in range(len(C)-2):
+		print('Constante: ', ((C[j+1]-C[j])/(C[j+2]-C[j+1])))
 
 
 for i in a:
@@ -87,8 +98,8 @@ ax2.axhline(0, color='k', lw=.5, alpha=.5)
 ax2.plot(a[G >= 0], G[G>=0], ',r', alpha = .25)
 
 Fei(G, a)
-for h in FgF:
+for h in Co:
 	ax2.axvline(h, color='k', lw=.25, alpha=.25)
-print(FgF)
+print(Co)
 plt.show()
 	
