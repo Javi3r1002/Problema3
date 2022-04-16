@@ -44,23 +44,29 @@ def D(A, G):
 def Fei(Vg, Va):
 	U = union(Vg, Va)
 	#print(U)
+	Fg2 = []
+	Gg2 = []
 
 	for i in range(len(U)-1):
 		#if round(U[i][0], 2) == 0:
 			#Fg.append(U[i][1])
 		if i > 0:
 			if (U[i][1] <= 3.5):
-				if (U[i][0] >= -.01) & (U[i][0] <= .01):
+				#if (U[i][0] >= -.001) & (U[i][0] <= .001) & (U[i-1][0] <= 0):
+				if(round(U[i][0], 1) == 0) & (U[i+1][0] <= 0) & (U[i-1][0] <=0):
 					Fg.append(U[i][1])
 					Gg.append(U[i][0])
-			else:
-				if (U[i][0] >= -.08) & (U[i][0] <= .08):
-					Fg.append(U[i][1])
-					Gg.append(U[i][0])
+			elif (U[i][1] <= 3.56790):
+				#if (U[i][0] >= -.001) & (U[i][0] <= .001) & (U[i-1][0] <= 0):
+				#if (round(U[i][0], 3) == 0):
+				if(round(U[i][0], 2) == 0) & (U[i+1][0] <= 0) & (U[i-1][0] <=0):
+					Fg2.append(U[i][1])
+					Gg2.append(U[i][0])
 	Fg.pop(0)
 
 	X = D(Fg, Gg)
-	km = cluster.KMeans(n_clusters=10).fit(X)
+	X2 = D(Fg2, Gg2)
+	km = cluster.KMeans(n_clusters=3).fit(X)
 	centroides = km.cluster_centers_
 	#print(centroides)
 	C = sorted(centroides[:, 0])
@@ -68,10 +74,19 @@ def Fei(Vg, Va):
 	for i in C:
 		Co.append(i)
 
-	for j in range(len(C)-2):
-		print('Constante: ', ((C[j+1]-C[j])/(C[j+2]-C[j+1])))
+	km1 = cluster.KMeans(n_clusters=2).fit(X2)
+	centroides = km1.cluster_centers_
+	#print(centroides)
+	C2 = sorted(centroides[:, 0])
+	print(C2)
+	for i in C2:
+		Co.append(i)
 
 
+	for j in range(len(Co)-2):
+		print('Constante: ', ((Co[j+1]-Co[j])/(Co[j+2]-Co[j+1])))
+
+np.random.seed(250)
 for i in a:
 	yo = np.random.random()
 	Y.clear()
